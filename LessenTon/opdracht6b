@@ -1,0 +1,17 @@
+<?php include "include.php";
+
+//$query = "INSERT INTO nadinevandenberg.users (`id`, `username`, `password`, `geboortedatum`) VALUES (NULL, 'sophie.vandersijp@student.hku.nl', 'wachtwoord', '1989-10-03') ";
+
+//$query = "INSERT INTO nadinevandenberg.things (`id`, `thing_id`, `user_id`, `time`, `temperature`) VALUES ( NULL, 6, 6, NOW(), 12)";
+
+
+$var_thing_id = $_GET["thing_id"];
+$var_temp = $_GET["temp"];
+
+$query = "INSERT INTO nadinevandenberg.things(id, thing_id, user_id, time, temperature) VALUES (NULL, $var_thing_id, 6, NOW(), $var_temp)";
+
+if (!($result = $mysqli->query($query)))
+showerror($mysqli->errno,$mysqli->error);  
+
+
+?>
