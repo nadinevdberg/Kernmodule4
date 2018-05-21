@@ -4,8 +4,7 @@
 //#define NETWORK_NAME "PhoneNadine"
   #define NETWORK_NAME "LaptopNadine"
   #define NETWORK_PASSWORD "793b}09F"
- // #define NETWORK_NAME "Sitecom30BCF8"
-//  #define NETWORK_PASSWORD "UJHVEGMNNYJU"
+
 
  int sensorPin = A3;  //analoge pin temperatuurmeter
 
