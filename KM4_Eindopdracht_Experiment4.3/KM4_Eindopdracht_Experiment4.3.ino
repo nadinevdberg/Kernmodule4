@@ -1,8 +1,8 @@
 #include <SoftwareSerial.h>
 #include <SparkFunESP8266WiFi.h>
 
-#define NETWORK_NAME "PC_Nadine"
-#define NETWORK_PASSWORD ")6Z3q020"
+#define NETWORK_NAME "HKU"
+#define NETWORK_PASSWORD "draadloos"
 
 
 int sensorPin = A3;
@@ -15,26 +15,20 @@ void setup() {
 } 
 
 void loop() {
-  // Setup sensor and check if it's working
-  
   int reading = analogRead(sensorPin);
   Serial.print("Sensor value = ");
   Serial.println(reading);
 
-//setup wifi shield
   ESP8266Client client; 
-  int result = client.connect("studenthome.hku.nl",80); // maak verbinding met studenthome
+int result = client.connect("studenthome.hku.nl",80); // maak verbinding met studenthome
 
 if (result <= 0) { //als connectie mislukt
   Serial.println("Failed to connect to server.");
   delay(1000);
-  
 }else {
-  
-  //------------------------ INLOGSESSIE 
   if (ingelogt == false){
-   
-    String loginRequest = "/~nadine.vandenberg/kernmodule4/login.php?id=1&password=wachtwoord1"; //hier de juiste link invoeren om in te loggen
+    // zorg dat je hier inlogt en dus een sessie start
+    String loginRequest = "?id=1&password=wachtwoord1"; //hier de juiste link invoeren om in te loggen
     Serial.println("Send HTTP request...");
     client.println("GET " + loginRequest + "HTTP/1.1\n"
                     "Host: studenthome.hku.nl\n"
@@ -46,7 +40,6 @@ if (result <= 0) { //als connectie mislukt
     }// sluit whileloop
     Serial.println(response);
     ingelogt = true;
-    
   }
 
 
@@ -57,7 +50,7 @@ if (result <= 0) { //als connectie mislukt
     //of die ervoor zorgt dat er data uit je database gelezen wordt
 
     //zet de data van mijn sensor (reading) achter de URL zodat ik dit samengevoegd door kan sturen in mijn request
-    String insertRequest = "/~nadine.vandenberg/kernmodule4/add_data.php?thing_id=3&temp=";
+    String insertRequest = "/~nadine.vandenberg/kernmodule4/insertexperiment.php?thing_id=2&temp=";
     insertRequest += reading; 
 
     Serial.println("Send HTTP request...");
