@@ -28,7 +28,7 @@ if (result <= 0) { //als connectie mislukt
 }else {
   if (ingelogt == false){
     // zorg dat je hier inlogt en dus een sessie start
-    String loginRequest = "?id=1&password=wachtwoord1"; //hier de juiste link invoeren om in te loggen
+    String loginRequest = "/~nadine.vandenberg/kernmodule4/login.php?id=1&password=wachtwoord1"; //hier de juiste link invoeren om in te loggen
     Serial.println("Send HTTP request...");
     client.println("GET " + loginRequest + "HTTP/1.1\n"
                     "Host: studenthome.hku.nl\n"
