@@ -3,8 +3,8 @@
 #include <SoftwareSerial.h>
 #include <SparkFunESP8266WiFi.h>
 
-#define NETWORK_NAME "Sitecom30BCF8"
-#define NETWORK_PASSWORD "UJHVEGMNNYJU"
+#define NETWORK_NAME "PhoneNadine"
+#define NETWORK_PASSWORD "793b}09F"
 
 int sensorPin = A3;  //analoge pin temperatuurmeter
 bool ingelogt = false;
@@ -111,8 +111,8 @@ void loop() {
 String getBody(const String & readResponse) {
   //waar begint de body?
   int bodyStart = readResponse.indexOf("\r\n\r\n"); // wat is de positie van \r\n\r\n
-  int bodyEnd = readResponse.indexOf("\n", bodyStart + 4); // kan aangeven waar je wil beginnen met zoeken
-  return readResponse.substring(bodyStart + 4, bodyEnd); // uitknipfunctie
+  int bodyEnd = readResponse.indexOf("\n", bodyStart); // kan aangeven waar je wil beginnen met zoeken
+  return readResponse.substring(bodyStart , bodyEnd); // uitknipfunctie
 
 }
 
