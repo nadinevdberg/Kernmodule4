@@ -17,7 +17,7 @@ void setup() {
 
 
 void loop() {
-  String readResponse;
+  String response;
   int reading = analogRead(sensorPin); //lees de sensorpin uit
   Serial.print("Sensorwaarde = ");
   Serial.println(reading);
@@ -46,7 +46,7 @@ void loop() {
       }
       Serial.println("-----");
 
-      String loginResult = getBody(readResponse);
+      String loginResult = getBody(response);
       if (loginResult != '0') {
         Serial.println("CONGRATS! You've succesfully logged in! ");
         Serial.println(loginResult);
@@ -87,18 +87,18 @@ void loop() {
   int currentData;
   currentData = sendRequest("studenthome.hku.nl",
                             "/~nadine.vandenberg/kernmodule4/getrecentdata",
-                            readResponse);
-  int recentData = getBody(readResponse).toInt(); // alles wegknippen wat voor die blanco regel zit
+                            response);
+  int recentData = getBody(response).toInt(); // alles wegknippen wat voor die blanco regel zit
   Serial.println("recent gemeten data = ");
   Serial.println(recentData);
-
+Serial.println(response);
 
 
   int currentAvgData;
   currentAvgData = sendRequest("studenthome.hku.nl",
                                "/~nadine.vandenberg/kernmodule4/getavgdata",
-                               readResponse);
-  int avgData = getBody(readResponse).toInt(); // alles wegknippen wat voor die blanco regel zit
+                               response);
+  int avgData = getBody(response).toInt(); // alles wegknippen wat voor die blanco regel zit
   Serial.println("gemiddelde van alle data = ");
   Serial.println(avgData);
 
@@ -106,21 +106,19 @@ void loop() {
   Serial.println("difference in data = ");
   Serial.println(difference);
 
-  Serial.println(readResponse);
+  Serial.println(response);
   delay(4000);
 
 }
 
 
-String getBody(const String& readResponse) {
-  //waar begint de body?
-  int bodyStart = readResponse.indexOf("\r\n\r\n"); // wat is de positie van \r\n\r\n
-  int bodyEnd = readResponse.indexOf("\n", bodyStart + 4); // kan aangeven waar je wil beginnen met zoeken
-  readResponse = readResponse.substring(bodyStart , bodyEnd + 4); // uitknipfunctie
-  readResponse.trim();
-  Serial.println(readResponse);
-  return readResponse;
-
+String getBody(const String& response) {
+  int bodyStart = response.indexOf("\r\n\r\n");
+  int bodyEnd = response.indexOf('\n', bodyStart + 4);
+  String result = response.substring(bodyStart + 4, bodyEnd);
+  result.trim();
+  
+  return result;
 }
 
 
