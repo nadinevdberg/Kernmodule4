@@ -1,8 +1,10 @@
 #include <SoftwareSerial.h>
 #include <SparkFunESP8266WiFi.h>
 
-  #define NETWORK_NAME "LaptopNadine"
-  #define NETWORK_PASSWORD "793b}09F"
+//Geef hier aan met welk netwerk je verbinding wil maken 
+
+  #define NETWORK_NAME "Arduino_Hotspot"
+  #define NETWORK_PASSWORD ")6Z3q020"
 
 void setup() {
   setupESP8266();
