@@ -18,10 +18,11 @@ String request;
 int result; 
 String host = "nadine.mobidapt.com";
 bool loginCheck = false;
-//-------------------------------------------- Uitlezen van PHP pagina
+
+//-------------------------------------------- Functie voor het uitlezen van PHP pagina
 
 String getBody(const String & response) {
-  int bodyStart = response.indexOf(F("its")); //zoek begin body op (na its)
+  int bodyStart = response.indexOf(F("persoonlijk stressniveau")); //zoek begin body op (na 'persoonlijk stressniveau')
   int bodyEnd = response.indexOf(F("<br>"), bodyStart + 14); //zoek einde body op, <br>
   String body = response.substring(bodyStart + 14, bodyEnd); //substring deel van string beginnend bij teken (n) eindigend bij teken (x)
   body.trim();
@@ -44,27 +45,30 @@ void setup() {
    digitalWrite(LEDgreen, HIGH);
    digitalWrite(LEDorange, HIGH);
    digitalWrite(LEDred, HIGH);
+
+
     
 }
 
 void loop() {
 // ---------- INLOG SESSIE -----------
 
-if (loginCheck == false){        // Als er niet niet is ingelogd, doe dit dan eerst
-  request = "/login.php?id=1&password=wachtwoord";  
-  result = sendRequest(F(host, request, response);
-
-  if (result == 1){ 
-    String sessieID = getBody(response);
-
-    if (sessieID == 0) { // als het inloggen niet is gelukt geeft de PHP pagina 0 terug
-       loginCheck = false;
-    }
-
-    if (sessieID != 0) {  // inloggen gelukt? Dan mag je nu met de database communiceren
-      loginCheck = true;
-  
-  
+//if (loginCheck == false){        // Als er niet niet is ingelogd, doe dit dan eerst
+//  Serial.println ("er is niet ingelogd. Poging tot inloggen gestart...");
+//  request = "/login.php?id=1&password=wachtwoord";  
+//  result = sendRequest(host, request, response);
+//
+//  if (result == 1){ 
+//    String sessieID = getBody(response);
+//
+//    if (sessieID == 0) { // als het inloggen niet is gelukt geeft de PHP pagina 0 terug
+//       loginCheck = false;
+//    }
+//
+//    if (sessieID != 0) {  // inloggen gelukt? Dan mag je nu met de database communiceren
+//      loginCheck = true;
+//  
+//  
 
 
   
@@ -79,31 +83,46 @@ if (loginCheck == false){        // Als er niet niet is ingelogd, doe dit dan ee
    if (force != 0){     // Is de druksensor gebruikt? Stuur data naar database
        
       Serial.println("Send request...");
-      request = "/senddata.php/?thing_id=1&data=";
+      request = "/senddata.php?thing_id=1&data=";
       request += force;
-      result = sendRequest (F(host,request,response);
+      result = sendRequest (host,request,response);
 
       // error message check
       if (result < 0) {
         Serial.println(F("Failed to connect to server."));
+      
       } else {
         Serial.println(response);
       }
   
    }else { // Is de sensor niet gebruikt? Laat mij dit weten a.u.b. 
-    Serial.println (F(" Er word momenteel niks uitgelezen ");
+    Serial.println (" Er word momenteel niks uitgelezen ");
    }
     
 // ---------- PHP uitlezen -----------
-request = "" // hier moet ik OF het gemiddelde uitlezen OF de huidige meting OF het verschil tussen deze 2
-result = sendRequest (F(host, request, response);
-  
+String requestDifference = "/difference.php"; 
+result = sendRequest (host, requestDifference, response);
+        if (result == 1){
+          Serial.println("Pagina 'difference.php' bereikt");
+          String difference = getBody(response);
+      
+          if (response == ("! ! ! alarm ! ! !")){  // Is het stresslevel te hoog? Zet het rode lampje aan
+             digitalWrite(LEDgreen, LOW);
+             digitalWrite(LEDorange, LOW);
+             digitalWrite(LEDred, HIGH);
+          } else {                                // Is het stresslevel oke? Zet het groene lichtje aan
+             digitalWrite(LEDgreen, HIGH);
+             digitalWrite(LEDorange, LOW);
+             digitalWrite(LEDred, LOW);
+          }
+          
+        }
 
-  } // einde sessie (nadat sessie inlog is gelukt) 
+ // } // einde sessie (nadat sessie inlog is gelukt) 
 
-  } // einde result check (1) 
+ // } // einde result check (1) 
 
-  } // einde check of er ingelogd is
+ // } // einde check of er ingelogd is
 
   delay(1500);
   
