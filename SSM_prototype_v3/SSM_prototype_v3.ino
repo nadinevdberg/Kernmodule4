@@ -17,7 +17,6 @@ int LEDgreen = 11;
 int LEDred = 10;
 
 
-
 void setup() {
   Serial.begin(9600);
 
@@ -25,12 +24,64 @@ void setup() {
 
   pinMode(LEDred, OUTPUT);
   pinMode(LEDgreen, OUTPUT);
+
+
   
  
 }
 
 void loop() {
+    
+// ---------- PHP uitlezen -----------
+// De volgende stap is het kijken of de meest recent gemeten data hoger is dan het gemiddelde van de stressmeter. 
+// Het gemiddelde kijkt naar alle gebruikers. Dit doe ik voor het geval de gebruiker van het begin af aan al een te hoog stressniveau heeft.
+// Het gemiddelde wordt berekend via de PHP pagina(s) m.g.v de database. 
 
+  ESP8266Client client;
+  int result = client.connect("nadine.mobidapt.com",80);
+   if (result <= 0) {
+    Serial.println("Failed to connect to server part 2.");
+    delay(1000);
+  } else {
+  
+String requestDifference = "/difference.php"; 
+
+
+    Serial.println("Send HTTP request...");
+    client.println("GET "+ requestDifference + " HTTP/1.1\n"
+                  "Host: nadine.mobidapt.com\n"
+                   "Connection: close\n");
+
+    Serial.println("Response from server");
+    String response2;
+
+      while (client.available()) {
+      response2 += (char)client.read();
+      }
+      
+     Serial.println(response2);
+     
+if (response2.indexOf("alarm") > 0){ //functie in stringclass, zoekt naar positie van dit woord in de hele string.  -1 == not found
+  
+      digitalWrite(LEDgreen, LOW);
+      digitalWrite(LEDred, HIGH);
+
+      Serial.println("Alarm signaal afgegeven");
+      
+    } else {
+      
+      digitalWrite(LEDgreen, HIGH);
+      digitalWrite(LEDred, LOW);
+
+      Serial.println("Het gaat goed");
+    }
+
+
+  }
+
+  if (client.connected()) {
+      client.stop();
+  }
   
 // ---------- DRUK SENSOR UITLEZEN -----------
 // Hier kijk ik of de gebruiker zijn/haar stresslevel meet. 
@@ -52,7 +103,7 @@ void loop() {
       int result = sendRequest (host, request, response);
 
       if (result < 0) {
-        Serial.println(F("Failed to connect to server."));
+        Serial.println(F("Failed to connect to server part 1."));
       } else {
         Serial.println("Data verstuurd naar de database");
         Serial.println(response);
@@ -63,52 +114,7 @@ void loop() {
    else { // Is de sensor niet gebruikt? Laat mij dit weten a.u.b. 
     Serial.println (" Er word momenteel niks uitgelezen ");
    }
-    
-// ---------- PHP uitlezen -----------
-// De volgende stap is het kijken of de meest recent gemeten data hoger is dan het gemiddelde van de stressmeter. 
-// Het gemiddelde kijkt naar alle gebruikers. Dit doe ik voor het geval de gebruiker van het begin af aan al een te hoog stressniveau heeft.
-// Het gemiddelde wordt berekend via de PHP pagina(s) m.g.v de database. 
 
-  ESP8266Client client;
-  int result = client.connect("nadine.mobidapt.com",80);
-   if (result <= 0) {
-    Serial.println("Failed to connect to server.");
-    delay(1000);
-  } else {
-  
-String requestDifference = "/difference.php"; 
-
-
-    Serial.println("Send HTTP request...");
-    client.println("GET "+ requestDifference + " HTTP/1.1\n"
-                  "Host: nadine.mobidapt.com\n"
-                   "Connection: close\n");
-
-    Serial.println("Response from server");
-    String response2;
-
-      while (client.available()) {
-      response2 += (char)client.read();
-      }
-      
-     Serial.println(response2);
-     
-if (response2.indexOf("alarm") >0){ //functie in stringclass, zoekt naar positie van dit woord in de hele string.  -1 == not found
-  
-      digitalWrite(LEDgreen, LOW);
-      digitalWrite(LEDred, HIGH);
-      
-    } else {
-      
-      digitalWrite(LEDgreen, HIGH);
-      digitalWrite(LEDred, LOW);
-      
-    }
-  }
-
-  if (client.connected()) {
-      client.stop();
-  }
 
   delay(4000);
 

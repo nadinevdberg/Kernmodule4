@@ -78,3 +78,29 @@ void setupESP8266(bool forceReconnect) {
     Serial.println("<UNKNOWN>");
   }
 }
+
+int sendRequest(const String& host, const String& request, String& response) {
+  ESP8266Client client;
+
+  // maak verbinding met webserver
+  int result = client.connect(host, 80);
+  if (result < 0) { // verbinding is mislukt...
+    return result;
+  } else { // verbinding gelukt
+    // stuur HTTP request
+    client.println("GET " + request + " HTTP/1.1\n"
+                   "Host: " + host + "\n"
+                   "Connection: close\n");
+
+    // lees het antwoord van de server uit...
+    response = "";
+    while (client.available()) {
+      response += (char)client.read();
+    }
+    response.trim();
+  }
+
+  if (client.connected()) client.stop();
+
+  return result;
+}
