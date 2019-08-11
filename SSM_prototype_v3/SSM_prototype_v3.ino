@@ -1,3 +1,8 @@
+// Code voor een eerste prototype voor een slimme stress meter
+// Geschreven door Nadine van den Berg
+// ©2019
+
+
 #include <SoftwareSerial.h>
 #include <SparkFunESP8266WiFi.h>
 
@@ -6,11 +11,10 @@
 #define NETWORK_PASSWORD "draadloos"
 
 // gegevens van de arduino onderdelen
-int pressurePin = A0;
+int pressurePin = A1;
 int force = 0;
-int LEDgreen = 10;
-int LEDorange = 11;
-int LEDred = 12;
+int LEDgreen = 11;
+int LEDred = 10;
 
 
 
@@ -20,26 +24,21 @@ void setup() {
   setupESP8266();
 
   pinMode(LEDred, OUTPUT);
-  pinMode(LEDorange, OUTPUT);
   pinMode(LEDgreen, OUTPUT);
   
-  // test bij opstarten of alle lampjes werken
-  
-//   digitalWrite(LEDgreen, HIGH);
-//   digitalWrite(LEDorange, HIGH);
-//   digitalWrite(LEDred, HIGH);
-
-
-    
+ 
 }
 
 void loop() {
 
   
 // ---------- DRUK SENSOR UITLEZEN -----------
+// Hier kijk ik of de gebruiker zijn/haar stresslevel meet. 
+// Meet de force-sensor data? Stuur deze dan naar de database. 
+// Gebruikt de gebruiker de druksensor niet? Doe dan niets. 
 
   force = analogRead(pressurePin);      // lees pin uit
-  force = map(force, 0, 1023, 0, 100);  // map resultaat naar 0-100
+  force = map(force, 0, 1023, 0, 100);  // map resultaat naar 0-100 (dit zodat ik geen uitschieters heb wanneer ik gebruik maak van een andere sensor i.p.v. een druksensor) 
   
   String host = "nadine.mobidapt.com";
   String request = "/senddata.php?thing_id=1&data=";
@@ -66,36 +65,52 @@ void loop() {
    }
     
 // ---------- PHP uitlezen -----------
-//String requestDifference = "/difference.php"; 
-//result = sendRequest (host, requestDifference, response);
-//        if (result == 1){
-//          Serial.println("Pagina 'difference.php' bereikt");
-//          String difference = getBody(response);
-//      
-//          if (response == ("! ! ! alarm ! ! !")){  // Is het stresslevel te hoog? Zet het rode lampje aan
-//             digitalWrite(LEDgreen, LOW);
-//             digitalWrite(LEDorange, LOW);
-//             digitalWrite(LEDred, HIGH);
-//          } else {                                // Is het stresslevel oke? Zet het groene lichtje aan
-//             digitalWrite(LEDgreen, HIGH);
-//             digitalWrite(LEDorange, LOW);
-//             digitalWrite(LEDred, LOW);
-//          }
-//          
-//        }
+// De volgende stap is het kijken of de meest recent gemeten data hoger is dan het gemiddelde van de stressmeter. 
+// Het gemiddelde kijkt naar alle gebruikers. Dit doe ik voor het geval de gebruiker van het begin af aan al een te hoog stressniveau heeft.
+// Het gemiddelde wordt berekend via de PHP pagina(s) m.g.v de database. 
+
+  ESP8266Client client;
+  int result = client.connect("nadine.mobidapt.com",80);
+   if (result <= 0) {
+    Serial.println("Failed to connect to server.");
+    delay(1000);
+  } else {
+  
+String requestDifference = "/difference.php"; 
 
 
-  delay(1500);
+    Serial.println("Send HTTP request...");
+    client.println("GET "+ requestDifference + " HTTP/1.1\n"
+                  "Host: nadine.mobidapt.com\n"
+                   "Connection: close\n");
+
+    Serial.println("Response from server");
+    String response2;
+
+      while (client.available()) {
+      response2 += (char)client.read();
+      }
+      
+     Serial.println(response2);
+     
+if (response2.indexOf("alarm") >0){ //functie in stringclass, zoekt naar positie van dit woord in de hele string.  -1 == not found
+  
+      digitalWrite(LEDgreen, LOW);
+      digitalWrite(LEDred, HIGH);
+      
+    } else {
+      
+      digitalWrite(LEDgreen, HIGH);
+      digitalWrite(LEDred, LOW);
+      
+    }
+  }
+
+  if (client.connected()) {
+      client.stop();
+  }
+
+  delay(4000);
+
   
 }  // einde loop functie
-
-
-//-------------------------------------------- Functie voor het uitlezen van PHP pagina
-
-//String getBody(const String & response) {
-//  int bodyStart = response.indexOf(F("persoonlijk stressniveau")); //zoek begin body op (na 'persoonlijk stressniveau')
-//  int bodyEnd = response.indexOf(F("<br>"), bodyStart + 14); //zoek einde body op, <br>
-//  String body = response.substring(bodyStart + 14, bodyEnd); //substring deel van string beginnend bij teken (n) eindigend bij teken (x)
-//  body.trim();
-//  return body;
-//}
