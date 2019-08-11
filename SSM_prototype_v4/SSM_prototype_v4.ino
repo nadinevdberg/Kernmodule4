@@ -71,52 +71,29 @@ void loop() {
 // Het gemiddelde kijkt naar alle gebruikers. Dit doe ik voor het geval de gebruiker van het begin af aan al een te hoog stressniveau heeft.
 // Het gemiddelde wordt berekend via de PHP pagina(s) m.g.v de database. 
 
-  ESP8266Client client;
-  int result = client.connect("nadine.mobidapt.com",80);
-   if (result <= 0) {
-    Serial.println("Failed to connect to server part 2.");
-    delay(1000);
-  } else {
   
-String requestDifference = "/difference.php"; 
+    String requestDifference = "/difference.php"; 
 
-
-    Serial.println("Send HTTP request...");
-    client.println("GET "+ requestDifference + " HTTP/1.1\n"
-                  "Host: nadine.mobidapt.com\n"
-                   "Connection: close\n");
-
-    Serial.println("Response from server");
     String response2;
 
-      while (client.available()) {
-      response2 += (char)client.read();
-      }
-      
-     Serial.println(response2);
-     
-if (response2.indexOf("alarm") > 0){ //functie in stringclass, zoekt naar positie van dit woord in de hele string.  -1 == not found
-  
-      digitalWrite(LEDgreen, LOW);
-      digitalWrite(LEDred, HIGH);
+    int result = sendRequest(host, requestDifference, response2);
 
-      Serial.println("Alarm signaal afgegeven");
-      
-    } else {
-      
-      digitalWrite(LEDgreen, HIGH);
-      digitalWrite(LEDred, LOW);
+    if (result < 0) {
+    Serial.println(F("Failed to connect to server -- PHP uitlezen."));
+  } else {
+    Serial.println(response2);
 
-      Serial.println("Het gaat goed");
-    }
-
-
+    
+        // zoek het woord 'alarm'
+ if (response2.indexOf("alarm") >= 0) {
+    digitalWrite(LEDgreen, LOW);
+    digitalWrite(LEDred, HIGH);
+  } else { 
+    digitalWrite(LEDgreen, HIGH);
+    digitalWrite(LEDred, LOW);
+  }
   }
 
-  if (client.connected()) {
-      client.stop();
-  }
-  delay(4000);
-
+  delay(2000);
   
 }  // einde loop functie
