@@ -23,11 +23,13 @@ void setup() {
   setupESP8266();
 
   pinMode(LEDred, OUTPUT);
-  pinMode(LEDgreen, OUTPUT);
+  pinMode(LEDgreen, OUTPUT);  
 
-
-  
+ // Test om te zien of de LED lampjes het nog doen
+  digitalWrite(LEDgreen, HIGH);
+  digitalWrite(LEDred, HIGH);
  
+    
 }
 
 void loop() {
@@ -40,6 +42,7 @@ void loop() {
 
   force = analogRead(pressurePin);      // lees pin uit
   force = map(force, 0, 1023, 0, 100);  // map resultaat naar 0-100 (dit zodat ik geen uitschieters heb wanneer ik gebruik maak van een andere sensor i.p.v. een druksensor) 
+  Serial.println(force); // geef mij de waarde van Force zodat ik weet of de sensor werkt
   
   String host = "nadine.mobidapt.com";
   String request = "/senddata.php?thing_id=1&data=";

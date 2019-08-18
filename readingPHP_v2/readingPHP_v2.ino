@@ -19,6 +19,10 @@ void setup() {
 
   pinMode(LEDgreen, OUTPUT);
   pinMode(LEDred, OUTPUT);
+  
+// Test om te zien of de LED lampjes het nog doen
+  digitalWrite(LEDgreen, HIGH);
+  digitalWrite(LEDred, HIGH);
  
     
 }
